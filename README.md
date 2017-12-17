@@ -159,7 +159,7 @@ Or if you need to double-escape the URI for some reason:
 <a href='https://example.com?q={{query | uri}}'>Query</a>
 ```
 
-#### Custom Filters
+### Custom Filters
 
 Filters can be added to the runtime in nodejs:
 
