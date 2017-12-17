@@ -1,8 +1,5 @@
-html        = require 'parse5'
-esparse     = require('esprima').parse
-esgenerate  = require('escodegen').generate
-esreplace   = require('estraverse').replace
-macro       = require './micro-html-template-parser'
+parseFragment = require('parse5').parseFragment
+macro         = require './micro-html-template-parser'
 
 separator = 'fd642636-e2e8-11e7-a034-68f728841ab6'
 
@@ -74,7 +71,7 @@ attrInfo = (node, name) ->
     or 'html'
 
 compile = (htmlFragment) ->
-  unparseFragment(compileMacros(html.parseFragment(htmlFragment)))
+  unparseFragment(compileMacros(parseFragment(htmlFragment)))
 
 unparseFragment = (node) ->
   buf = []
@@ -100,16 +97,15 @@ unparseFragment = (node) ->
 
   buf.join('+')
 
-emit = (src, name) ->
-  if name is 'RAW'
-    JSON.stringify(src)
-  else
-    p = new macro.Parser
-    p.yy = {escape: name}
-    p.parse(src)
-
 compileMacros = (node) ->
   tag  = nodeInfo(node)
+  emit = (src, name) ->
+    if name is 'RAW'
+      JSON.stringify(src)
+    else
+      p = new macro.Parser
+      p.yy = {escape: name}
+      p.parse(src)
 
   if tag.hasText
     node.value = emit(node.value, tag.escape)
