@@ -3,17 +3,11 @@
 
 %x STRING
 %x MACRO
-%x REGEXP
-%x RAW
 
 %%
-<INITIAL>"{{"                                           { this.begin("MACRO"); return "{{"; }
-<INITIAL>"{%"\s*"raw"\s*"%}"                            { this.begin("RAW"); return "STARTRAW"; }
-<RAW>"{%"\s*"endraw"\s*"%}"                             { this.popState(); return "ENDRAW"; }
-<RAW>.                                                  { return "RAWCHAR"; }
-<INITIAL>[^{]+                                          { return "LITERAL"; }
+<INITIAL>"{{"([{][{])?                                  { if (yytext == "{{") this.begin("MACRO"); return yytext; }
+<INITIAL>[{]?[^{]+                                      { return "LITERAL"; }
 <MACRO>\s+                                              { /* skip whitespace */ }
-<MACRO>"r/"                                             { this.begin("REGEXP"); return "r/"; }
 <MACRO>[-]?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?    { return "NUMBER"; }
 <MACRO>[A-Za-z_$]([A-Za-z0-9_$]+)*                      { return "IDENTIFIER"; }
 <MACRO>'"'                                              { this.begin("STRING"); return '"'; }
@@ -25,10 +19,6 @@
 <MACRO>"("                                              { return "("; }
 <MACRO>")"                                              { return ")"; }
 <MACRO>"}}"                                             { this.popState(); return "}}"; }
-<REGEXP>"\\\\"                                          { return "REGEXPCHAR"; }
-<REGEXP>"\\/"                                           { return "REGEXPCHAR"; }
-<REGEXP>[^/\n]                                          { return "REGEXPCHAR"; }
-<REGEXP>"/"[gimuy]*                                     { this.popState(); return "/"; }
 <STRING>"\\\\"                                          { return "STRINGCHAR"; }
 <STRING>'\\"'                                           { return "STRINGCHAR"; }
 <STRING>[^""\n]                                         { return "STRINGCHAR"; }
@@ -56,28 +46,16 @@ template
 templatepart
   : LITERAL
     %{ $$ = JSON.stringify($1); %}
-  | raw
-    %{ $$ = $1; %}
+  | "{{{{"
+    %{ $$ = JSON.stringify("{{"); %}
   | macro
-    %{ $$ = $1; %}
-  ;
-
-raw
-  : STARTRAW rawchars ENDRAW
-    %{ $$ = JSON.stringify($2); %}
-  ;
-
-rawchars
-  : RAWCHAR rawchars
-    %{ $$ = $1 + $2; %}
-  | RAWCHAR
     %{ $$ = $1; %}
   ;
 
 macro
   : "{{" macroexpr "}}"
     %{
-      $$ = "_r[_esc]((" + (function emit(xs) {
+      $$ = "r." + yy.escape + "((" + (function emit(xs) {
         if (Object.prototype.toString.call(xs) !== '[object Array]') {
           return xs;
         } else {
@@ -113,11 +91,11 @@ filters
 
 filter
   : IDENTIFIER "(" filterargs ")"
-    %{ $$ = ["(_r." + $1 + "||_r.id)"].concat($3); %}
+    %{ $$ = ["(r." + $1 + "||r.id)"].concat($3); %}
   | IDENTIFIER "(" ")"
-    %{ $$ = ["(_r." + $1 + "||_r.id)"]; %}
+    %{ $$ = ["(r." + $1 + "||r.id)"]; %}
   | IDENTIFIER
-    %{ $$ = ["(_r." + $1 + "||_r.id)"]; %}
+    %{ $$ = ["(r." + $1 + "||r.id)"]; %}
   ;
 
 filterargs
@@ -134,8 +112,6 @@ value
     %{ $$ = $1; %}
   | NUMBER
     %{ $$ = $1; %}
-  | regexp
-    %{ $$ = $1; %}
   ;
 
 variable
@@ -144,21 +120,7 @@ variable
   | variable "[" string "]"
     %{ $$ = "(" + $1 + "||{})" + $2 + $3 + $4; %}
   | IDENTIFIER
-    %{ $$ = "_env." + $1; %}
-  ;
-
-regexp
-  : "r/" "/"
-    %{ $$ = "(/" + $2 + ")"; }
-  | "r/" regexpchars "/"
-    %{ $$ = "(/" + $2 + $3 + ")"; }
-  ;
-
-regexpchars
-  : REGEXPCHAR regexpchars
-    %{ $$ = $1 + $2; }
-  | REGEXPCHAR
-    %{ $$ = $1; }
+    %{ $$ = "e." + $1; %}
   ;
 
 string

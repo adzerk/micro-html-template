@@ -1,14 +1,10 @@
 assert   = require('chai').assert
-compiler = require('../')
-parser   = compiler.parser
+compile  = require('../').compile
 version  = require('../package.json').version
 runtime  = require('secure-filters')
 
-compile = (template) ->
-  compiler.parse(template)
-
 expand = (compiledTemplate) ->
-  fn = new Function('_r', '_env', "return #{compiledTemplate}")
+  fn = new Function('r', 'e', "return #{compiledTemplate};")
   (env) -> fn(runtime, env)
 
 env =
@@ -23,17 +19,26 @@ evaluate = (template, env) ->
 
 describe "version #{version}", ->
 
-  describe "with no macros", ->
-    tpl = "<h1 id='123'>hi there</h1>"
+  describe "with no macros or macros in unsafe contexts", ->
+    tpl = [
+      "<h1 id='123'>hi there</h1>"
+      "<div>hello {not_a_macro}</div>"
+      "<h1 {{macro_in_attr_name}}='123'>hi there</h1>"
+      "<style>{{macro_in_style_tag}}</style>"
+      "<script>var x = '{{macro_in_script_tag}}'</script>"
+      "<h1 style='{{macro_in_style_attr_val}}'>hi there</h1>"
+      "<h1 onclick='{{macro_in_onstar_attr_val}}'>hi there</h1>"
+    ]
 
     it "should be the same as the input", ->
-      assert.equal(evaluate(tpl, env), tpl)
+      assert.equal(evaluate(t, env), t) for t in tpl
 
-  describe "with macro in attribute name", ->
-    tpl = "<h1 {{id}}='123'>hi there</h1>"
+  describe "with macro delimiter escaped", ->
+    tpl = "<div>hello {{{{not_a_macro}}</div>"
+    ret = "<div>hello {{not_a_macro}}</div>"
 
-    it "should be the same as the input", ->
-      assert.equal(evaluate(tpl, env), tpl)
+    it "should properly emit the escaped delimiter", ->
+      assert.equal(evaluate(tpl, env), ret)
 
   describe "with macro in attribute value", ->
     tpl  = "<h1 id='{{id}}'>hi there</h1>"
@@ -46,37 +51,71 @@ describe "version #{version}", ->
     it "should expand undefined to ''", ->
       assert.equal(evaluate(tpl, {}), ret2)
 
-  describe "with macro in style attribute value", ->
-    tpl = "<h1 style='{{style}}'>hi there</h1>"
-    ret = "<h1 style='#{runtime.style(env.style)}'>hi there</h1>"
-
-    it "should be expanded and style escaped", ->
-      assert.equal(evaluate(tpl, env), ret)
-
   describe "with macro in uri type attribute value", ->
-    tpl = "<script src='https://example.com?x={{uri}}'></script>"
-    ret = "<script src='https://example.com?x=#{runtime.uri(env.uri)}'></script>"
+    tpl  = "<script src='https://example.com?x={{uri}}'></script>"
+    ret1 = "<script src='https://example.com?x=#{runtime.uri(env.uri)}'></script>"
+    ret2 = "<script src='https://example.com?x='></script>"
 
     it "should be expanded and uri escaped", ->
-      assert.equal(evaluate(tpl, env), ret)
+      assert.equal(evaluate(tpl, env), ret1)
 
-  describe "with macro in style tag", ->
-    tpl = "<style>{{style}}</style>"
-    ret = "<style>#{runtime.css(env.style)}</style>"
-
-    it "should be expanded and css escaped", ->
-      assert.equal(evaluate(tpl, env), ret)
-
-  describe "with macro in script tag", ->
-    tpl = "<script>var x = '{{script}}'</script>"
-    ret = "<script>var x = '#{runtime.js(env.script)}'</script>"
-
-    it "should be expanded and js escaped", ->
-      assert.equal(evaluate(tpl, env), ret)
+    it "should expand undefined to ''", ->
+      assert.equal(evaluate(tpl, {}), ret2)
 
   describe "with macro in div tag", ->
-    tpl = "<div>{{html}}</div>"
-    ret = "<div>#{runtime.html(env.html)}</div>"
+    tpl  = "<div>{{html}}</div>"
+    ret1 = "<div>#{runtime.html(env.html)}</div>"
+    ret2 = "<div></div>"
 
     it "should be expanded and html escaped", ->
-      assert.equal(evaluate(tpl, env), ret)
+      assert.equal(evaluate(tpl, env), ret1)
+
+    it "should expand undefined to ''", ->
+      assert.equal(evaluate(tpl, {}), ret2)
+
+  describe "with multiple tags", ->
+    tpl = """
+      <script src='https://example.com?x={{uri}}'></script>
+      <div>{{html}}</div>
+    """
+    ret1 = """
+      <script src='https://example.com?x=#{runtime.uri(env.uri)}'></script>
+      <div>#{runtime.html(env.html)}</div>
+    """
+    ret2 = """
+      <script src='https://example.com?x='></script>
+      <div></div>
+    """
+
+    it "should be each expanded and escaped properly", ->
+      assert.equal(evaluate(tpl, env), ret1)
+
+    it "should expand undefined to ''", ->
+      assert.equal(evaluate(tpl, {}), ret2)
+
+  describe "with nested tags", ->
+    tpl = """
+      <div>
+        {{html}}
+        <script src='https://example.com?x={{uri}}'></script>
+      </div>
+    """
+    ret1 = """
+      <div>
+        #{runtime.html(env.html)}
+        <script src='https://example.com?x=#{runtime.uri(env.uri)}'></script>
+      </div>
+    """
+    # Whitespace below is significant:
+    ret2 = """
+      <div>
+        
+        <script src='https://example.com?x='></script>
+      </div>
+    """
+
+    it "should be expanded and escaped properly", ->
+      assert.equal(evaluate(tpl, env), ret1)
+
+    it "should expand undefined to ''", ->
+      assert.equal(evaluate(tpl, {}), ret2)

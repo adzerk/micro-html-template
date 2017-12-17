@@ -10,7 +10,8 @@
   "devDependencies"  : {
     "chai"           : "1.2.0",
     "jison"          : "0.4.13",
-    "mocha"          : "2.3.3"
+    "mocha"          : "2.3.3",
+    "uglify-js"      : "3.2.2"
   },
   "engine"           : "node >= 5.0.x",
   "scripts"          : {

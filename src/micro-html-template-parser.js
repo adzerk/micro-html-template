@@ -74,9 +74,9 @@
 var microHtmlTemplateParser = (function(){
 var parser = {trace: function trace() { },
 yy: {},
-symbols_: {"error":2,"main":3,"template":4,"EOF":5,"templatepart":6,"LITERAL":7,"raw":8,"macro":9,"STARTRAW":10,"rawchars":11,"ENDRAW":12,"RAWCHAR":13,"{{":14,"macroexpr":15,"}}":16,"value":17,"filters":18,"|":19,"filter":20,"IDENTIFIER":21,"(":22,"filterargs":23,")":24,",":25,"variable":26,"string":27,"NUMBER":28,"regexp":29,".":30,"[":31,"]":32,"r/":33,"/":34,"regexpchars":35,"REGEXPCHAR":36,"\"":37,"stringchars":38,"STRINGCHAR":39,"$accept":0,"$end":1},
-terminals_: {2:"error",5:"EOF",7:"LITERAL",10:"STARTRAW",12:"ENDRAW",13:"RAWCHAR",14:"{{",16:"}}",19:"|",21:"IDENTIFIER",22:"(",24:")",25:",",28:"NUMBER",30:".",31:"[",32:"]",33:"r/",34:"/",36:"REGEXPCHAR",37:"\"",39:"STRINGCHAR"},
-productions_: [0,[3,2],[4,2],[4,1],[6,1],[6,1],[6,1],[8,3],[11,2],[11,1],[9,3],[15,2],[15,1],[18,3],[18,2],[20,4],[20,3],[20,1],[23,3],[23,1],[17,1],[17,1],[17,1],[17,1],[26,3],[26,4],[26,1],[29,2],[29,3],[35,2],[35,1],[27,2],[27,3],[38,2],[38,1]],
+symbols_: {"error":2,"main":3,"template":4,"EOF":5,"templatepart":6,"LITERAL":7,"{{{{":8,"macro":9,"{{":10,"macroexpr":11,"}}":12,"value":13,"filters":14,"|":15,"filter":16,"IDENTIFIER":17,"(":18,"filterargs":19,")":20,",":21,"variable":22,"string":23,"NUMBER":24,".":25,"[":26,"]":27,"\"":28,"stringchars":29,"STRINGCHAR":30,"$accept":0,"$end":1},
+terminals_: {2:"error",5:"EOF",7:"LITERAL",8:"{{{{",10:"{{",12:"}}",15:"|",17:"IDENTIFIER",18:"(",20:")",21:",",24:"NUMBER",25:".",26:"[",27:"]",28:"\"",30:"STRINGCHAR"},
+productions_: [0,[3,2],[4,2],[4,1],[6,1],[6,1],[6,1],[9,3],[11,2],[11,1],[14,3],[14,2],[16,4],[16,3],[16,1],[19,3],[19,1],[13,1],[13,1],[13,1],[22,3],[22,4],[22,1],[23,2],[23,3],[29,2],[29,1]],
 performAction: function anonymous(yytext, yyleng, yylineno, yy, yystate /* action[1] */, $$ /* vstack */, _$ /* lstack */
 /**/) {
 /* this == yyval */
@@ -91,18 +91,12 @@ case 3: this.$ = [$$[$0]];
 break;
 case 4: this.$ = JSON.stringify($$[$0]); 
 break;
-case 5: this.$ = $$[$0]; 
+case 5: this.$ = JSON.stringify("{{"); 
 break;
 case 6: this.$ = $$[$0]; 
 break;
-case 7: this.$ = JSON.stringify($$[$0-1]); 
-break;
-case 8: this.$ = $$[$0-1] + $$[$0]; 
-break;
-case 9: this.$ = $$[$0]; 
-break;
-case 10:
-      this.$ = "_r[_esc]((" + (function emit(xs) {
+case 7:
+      this.$ = "r." + yy.escape + "((" + (function emit(xs) {
         if (Object.prototype.toString.call(xs) !== '[object Array]') {
           return xs;
         } else {
@@ -115,7 +109,7 @@ case 10:
       })($$[$0-1]) + ")||'')";
     
 break;
-case 11:
+case 8:
       $$[$0][0].splice(1,0,$$[$0-1]);
       this.$ = $$[$0].reduce((xs,x) => {
         if (xs) x.splice(1,0,xs);
@@ -123,56 +117,46 @@ case 11:
       });
     
 break;
-case 12: this.$ = [$$[$0]]; 
+case 9: this.$ = [$$[$0]]; 
 break;
-case 13: this.$ = [$$[$0-1]].concat($$[$0]); 
+case 10: this.$ = [$$[$0-1]].concat($$[$0]); 
 break;
-case 14: this.$ = [$$[$0]]; 
+case 11: this.$ = [$$[$0]]; 
 break;
-case 15: this.$ = ["(_r." + $$[$0-3] + "||_r.id)"].concat($$[$0-1]); 
+case 12: this.$ = ["(r." + $$[$0-3] + "||r.id)"].concat($$[$0-1]); 
 break;
-case 16: this.$ = ["(_r." + $$[$0-2] + "||_r.id)"]; 
+case 13: this.$ = ["(r." + $$[$0-2] + "||r.id)"]; 
 break;
-case 17: this.$ = ["(_r." + $$[$0] + "||_r.id)"]; 
+case 14: this.$ = ["(r." + $$[$0] + "||r.id)"]; 
 break;
-case 18: this.$ = [$$[$0-2]].concat($$[$0]); 
+case 15: this.$ = [$$[$0-2]].concat($$[$0]); 
 break;
-case 19: this.$ = [$$[$0]]; 
+case 16: this.$ = [$$[$0]]; 
 break;
-case 20: this.$ = $$[$0]; 
+case 17: this.$ = $$[$0]; 
 break;
-case 21: this.$ = $$[$0]; 
+case 18: this.$ = $$[$0]; 
 break;
-case 22: this.$ = $$[$0]; 
+case 19: this.$ = $$[$0]; 
 break;
-case 23: this.$ = $$[$0]; 
+case 20: this.$ = "(" + $$[$0-2] + "||{})" + $$[$0-1] + $$[$0]; 
 break;
-case 24: this.$ = "(" + $$[$0-2] + "||{})" + $$[$0-1] + $$[$0]; 
+case 21: this.$ = "(" + $$[$0-3] + "||{})" + $$[$0-2] + $$[$0-1] + $$[$0]; 
 break;
-case 25: this.$ = "(" + $$[$0-3] + "||{})" + $$[$0-2] + $$[$0-1] + $$[$0]; 
+case 22: this.$ = "e." + $$[$0]; 
 break;
-case 26: this.$ = "_env." + $$[$0]; 
+case 23: this.$ = JSON.stringify(""); 
 break;
-case 27: this.$ = "(/" + $$[$0] + ")"; 
+case 24: this.$ = JSON.stringify($$[$0-1]); 
 break;
-case 28: this.$ = "(/" + $$[$0-1] + $$[$0] + ")"; 
+case 25: this.$ = $$[$0-1] + $$[$0]; 
 break;
-case 29: this.$ = $$[$0-1] + $$[$0]; 
-break;
-case 30: this.$ = $$[$0]; 
-break;
-case 31: this.$ = JSON.stringify(""); 
-break;
-case 32: this.$ = JSON.stringify($$[$0-1]); 
-break;
-case 33: this.$ = $$[$0-1] + $$[$0]; 
-break;
-case 34: this.$ = $$[$0]; 
+case 26: this.$ = $$[$0]; 
 break;
 }
 },
-table: [{3:1,4:2,6:3,7:[1,4],8:5,9:6,10:[1,7],14:[1,8]},{1:[3]},{5:[1,9]},{4:10,5:[2,3],6:3,7:[1,4],8:5,9:6,10:[1,7],14:[1,8]},{5:[2,4],7:[2,4],10:[2,4],14:[2,4]},{5:[2,5],7:[2,5],10:[2,5],14:[2,5]},{5:[2,6],7:[2,6],10:[2,6],14:[2,6]},{11:11,13:[1,12]},{15:13,17:14,21:[1,19],26:15,27:16,28:[1,17],29:18,33:[1,21],37:[1,20]},{1:[2,1]},{5:[2,2]},{12:[1,22]},{11:23,12:[2,9],13:[1,12]},{16:[1,24]},{16:[2,12],18:25,19:[1,26]},{16:[2,20],19:[2,20],24:[2,20],25:[2,20],30:[1,27],31:[1,28]},{16:[2,21],19:[2,21],24:[2,21],25:[2,21]},{16:[2,22],19:[2,22],24:[2,22],25:[2,22]},{16:[2,23],19:[2,23],24:[2,23],25:[2,23]},{16:[2,26],19:[2,26],24:[2,26],25:[2,26],30:[2,26],31:[2,26]},{37:[1,29],38:30,39:[1,31]},{34:[1,32],35:33,36:[1,34]},{5:[2,7],7:[2,7],10:[2,7],14:[2,7]},{12:[2,8]},{5:[2,10],7:[2,10],10:[2,10],14:[2,10]},{16:[2,11]},{20:35,21:[1,36]},{21:[1,37]},{27:38,37:[1,20]},{16:[2,31],19:[2,31],24:[2,31],25:[2,31],32:[2,31]},{37:[1,39]},{37:[2,34],38:40,39:[1,31]},{16:[2,27],19:[2,27],24:[2,27],25:[2,27]},{34:[1,41]},{34:[2,30],35:42,36:[1,34]},{16:[2,14],18:43,19:[1,26]},{16:[2,17],19:[2,17],22:[1,44]},{16:[2,24],19:[2,24],24:[2,24],25:[2,24],30:[2,24],31:[2,24]},{32:[1,45]},{16:[2,32],19:[2,32],24:[2,32],25:[2,32],32:[2,32]},{37:[2,33]},{16:[2,28],19:[2,28],24:[2,28],25:[2,28]},{34:[2,29]},{16:[2,13]},{17:48,21:[1,19],23:46,24:[1,47],26:15,27:16,28:[1,17],29:18,33:[1,21],37:[1,20]},{16:[2,25],19:[2,25],24:[2,25],25:[2,25],30:[2,25],31:[2,25]},{24:[1,49]},{16:[2,16],19:[2,16]},{24:[2,19],25:[1,50]},{16:[2,15],19:[2,15]},{17:48,21:[1,19],23:51,26:15,27:16,28:[1,17],29:18,33:[1,21],37:[1,20]},{24:[2,18]}],
-defaultActions: {9:[2,1],10:[2,2],23:[2,8],25:[2,11],40:[2,33],42:[2,29],43:[2,13],51:[2,18]},
+table: [{3:1,4:2,6:3,7:[1,4],8:[1,5],9:6,10:[1,7]},{1:[3]},{5:[1,8]},{4:9,5:[2,3],6:3,7:[1,4],8:[1,5],9:6,10:[1,7]},{5:[2,4],7:[2,4],8:[2,4],10:[2,4]},{5:[2,5],7:[2,5],8:[2,5],10:[2,5]},{5:[2,6],7:[2,6],8:[2,6],10:[2,6]},{11:10,13:11,17:[1,15],22:12,23:13,24:[1,14],28:[1,16]},{1:[2,1]},{5:[2,2]},{12:[1,17]},{12:[2,9],14:18,15:[1,19]},{12:[2,17],15:[2,17],20:[2,17],21:[2,17],25:[1,20],26:[1,21]},{12:[2,18],15:[2,18],20:[2,18],21:[2,18]},{12:[2,19],15:[2,19],20:[2,19],21:[2,19]},{12:[2,22],15:[2,22],20:[2,22],21:[2,22],25:[2,22],26:[2,22]},{28:[1,22],29:23,30:[1,24]},{5:[2,7],7:[2,7],8:[2,7],10:[2,7]},{12:[2,8]},{16:25,17:[1,26]},{17:[1,27]},{23:28,28:[1,16]},{12:[2,23],15:[2,23],20:[2,23],21:[2,23],27:[2,23]},{28:[1,29]},{28:[2,26],29:30,30:[1,24]},{12:[2,11],14:31,15:[1,19]},{12:[2,14],15:[2,14],18:[1,32]},{12:[2,20],15:[2,20],20:[2,20],21:[2,20],25:[2,20],26:[2,20]},{27:[1,33]},{12:[2,24],15:[2,24],20:[2,24],21:[2,24],27:[2,24]},{28:[2,25]},{12:[2,10]},{13:36,17:[1,15],19:34,20:[1,35],22:12,23:13,24:[1,14],28:[1,16]},{12:[2,21],15:[2,21],20:[2,21],21:[2,21],25:[2,21],26:[2,21]},{20:[1,37]},{12:[2,13],15:[2,13]},{20:[2,16],21:[1,38]},{12:[2,12],15:[2,12]},{13:36,17:[1,15],19:39,22:12,23:13,24:[1,14],28:[1,16]},{20:[2,15]}],
+defaultActions: {8:[2,1],9:[2,2],18:[2,8],30:[2,25],31:[2,10],39:[2,15]},
 parseError: function parseError(str, hash) {
     if (hash.recoverable) {
         this.trace(str);
@@ -640,64 +624,48 @@ performAction: function anonymous(yy,yy_,$avoiding_name_collisions,YY_START
 
 var YYSTATE=YY_START;
 switch($avoiding_name_collisions) {
-case 0: this.begin("MACRO"); return "{{"; 
+case 0: if (yy_.yytext == "{{") this.begin("MACRO"); return yy_.yytext; 
 break;
-case 1: this.begin("RAW"); return "STARTRAW"; 
+case 1: return "LITERAL"; 
 break;
-case 2: this.popState(); return "ENDRAW"; 
+case 2: /* skip whitespace */ 
 break;
-case 3: return "RAWCHAR"; 
+case 3: return "NUMBER"; 
 break;
-case 4: return "LITERAL"; 
+case 4: return "IDENTIFIER"; 
 break;
-case 5: /* skip whitespace */ 
+case 5: this.begin("STRING"); return 28; 
 break;
-case 6: this.begin("REGEXP"); return "r/"; 
+case 6: return "|"; 
 break;
-case 7: return "NUMBER"; 
+case 7: return "."; 
 break;
-case 8: return "IDENTIFIER"; 
+case 8: return ","; 
 break;
-case 9: this.begin("STRING"); return 37; 
+case 9: return "["; 
 break;
-case 10: return "|"; 
+case 10: return "]"; 
 break;
-case 11: return "."; 
+case 11: return "("; 
 break;
-case 12: return ","; 
+case 12: return ")"; 
 break;
-case 13: return "["; 
+case 13: this.popState(); return "}}"; 
 break;
-case 14: return "]"; 
+case 14: return "STRINGCHAR"; 
 break;
-case 15: return "("; 
+case 15: return "STRINGCHAR"; 
 break;
-case 16: return ")"; 
+case 16: return "STRINGCHAR"; 
 break;
-case 17: this.popState(); return "}}"; 
+case 17: this.popState(); return 28; 
 break;
-case 18: return "REGEXPCHAR"; 
-break;
-case 19: return "REGEXPCHAR"; 
-break;
-case 20: return "REGEXPCHAR"; 
-break;
-case 21: this.popState(); return "/"; 
-break;
-case 22: return "STRINGCHAR"; 
-break;
-case 23: return "STRINGCHAR"; 
-break;
-case 24: return "STRINGCHAR"; 
-break;
-case 25: this.popState(); return 37; 
-break;
-case 26: return "EOF"; 
+case 18: return "EOF"; 
 break;
 }
 },
-rules: [/^(?:\{\{)/,/^(?:\{%\s*raw\s*%\})/,/^(?:\{%\s*endraw\s*%\})/,/^(?:.)/,/^(?:[^{]+)/,/^(?:\s+)/,/^(?:r\/)/,/^(?:[-]?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?)/,/^(?:[A-Za-z_$]([A-Za-z0-9_$]+)*)/,/^(?:")/,/^(?:\|)/,/^(?:\.)/,/^(?:,)/,/^(?:\[)/,/^(?:\])/,/^(?:\()/,/^(?:\))/,/^(?:\}\})/,/^(?:\\\\)/,/^(?:\\\/)/,/^(?:[^\/\n])/,/^(?:\/[gimuy]*)/,/^(?:\\\\)/,/^(?:\\")/,/^(?:[^""\n])/,/^(?:")/,/^(?:$)/],
-conditions: {"RAW":{"rules":[2,3],"inclusive":false},"REGEXP":{"rules":[18,19,20,21],"inclusive":false},"MACRO":{"rules":[5,6,7,8,9,10,11,12,13,14,15,16,17],"inclusive":false},"STRING":{"rules":[22,23,24,25],"inclusive":false},"INITIAL":{"rules":[0,1,4,26],"inclusive":true}}
+rules: [/^(?:\{\{([{][{])?)/,/^(?:[{]?[^{]+)/,/^(?:\s+)/,/^(?:[-]?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?)/,/^(?:[A-Za-z_$]([A-Za-z0-9_$]+)*)/,/^(?:")/,/^(?:\|)/,/^(?:\.)/,/^(?:,)/,/^(?:\[)/,/^(?:\])/,/^(?:\()/,/^(?:\))/,/^(?:\}\})/,/^(?:\\\\)/,/^(?:\\")/,/^(?:[^""\n])/,/^(?:")/,/^(?:$)/],
+conditions: {"MACRO":{"rules":[2,3,4,5,6,7,8,9,10,11,12,13],"inclusive":false},"STRING":{"rules":[14,15,16,17],"inclusive":false},"INITIAL":{"rules":[0,1,18],"inclusive":true}}
 };
 return lexer;
 })();
