@@ -1,6 +1,7 @@
 .PHONY: all test
 
 export PATH := ./node_modules/.bin:$(PATH)
+
 NAME := micro-html-template
 SRCS := src/$(NAME)-parser.js
 DIST := dist/$(NAME)-runtime.min.js.gz

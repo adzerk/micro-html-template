@@ -100,8 +100,6 @@ unparseFragment = (node) ->
 
   buf.join('+')
 
-macroParse = (src, name) ->
-
 emit = (src, name) ->
   if name is 'RAW'
     JSON.stringify(src)
