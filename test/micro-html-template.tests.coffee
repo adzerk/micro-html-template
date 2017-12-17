@@ -2,10 +2,7 @@ assert   = require('chai').assert
 compile  = require('../').compile
 version  = require('../package.json').version
 runtime  = require('secure-filters')
-
-expand = (compiledTemplate) ->
-  fn = new Function('r', 'e', "return #{compiledTemplate};")
-  (env) -> fn(runtime, env)
+render   = require('../dist/micro-html-template-runtime.min.js').render
 
 env =
   id     : ">>id<<"
@@ -15,7 +12,7 @@ env =
   script : "foop'\"barp //]]></script>"
 
 evaluate = (template, env) ->
-  expand(compile(template))(env)
+  render(compile(template), env)
 
 describe "version #{version}", ->
 
