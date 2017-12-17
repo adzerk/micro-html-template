@@ -134,7 +134,7 @@ Filters are functions that are applied to the replacement text. Filters are
 expressed as a pipeline:
 
 ```jinja
-<img src='https://example.com/i.gif?q={{thing.id | filter1 | filter2}}'>
+<img src='https://example.com?q={{query | filter1 | filter2}}'>
 ```
 
 The following built-in filters are included:
