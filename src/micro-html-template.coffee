@@ -1,8 +1,6 @@
 parseFragment = require('parse5').parseFragment
 macro         = require './micro-html-template-parser'
 
-separator = 'fd642636-e2e8-11e7-a034-68f728841ab6'
-
 nodeType =
   '#document'           : 'container'
   '#document-fragment'  : 'container'
@@ -28,33 +26,33 @@ nodeType =
   wbr                   : 'void'
 
 nodeContext =
-  script                : 'RAW'
-  style                 : 'RAW'
+  script      : 'RAW'
+  style       : 'RAW'
 
 attrType =
-  applet:     { archive: 'uri', archive: 'uri', codebase: 'uri' }
-  audio:      { src: 'uri' }
-  blockquote: { cite: 'uri' }
-  body:       { background: 'uri' }
-  button:     { formaction: 'uri' }
-  command:    { icon: 'uri' }
-  del:        { cite: 'uri' }
-  embed:      { src: 'uri' }
-  form:       { action: 'uri' }
-  frame:      { longdesc: 'uri', src: 'uri' }
-  head:       { profile: 'uri' }
-  html:       { manifest: 'uri' }
-  iframe:     { longdesc: 'uri', src: 'uri' }
-  img:        { longdesc: 'uri', srcset: 'uri', src: 'uri', usemap: 'uri' }
-  input:      { formaction: 'uri', src: 'uri', usemap: 'uri' }
-  ins:        { cite: 'uri' }
-  meta:       { content: 'uri' }
-  object:     { archive: 'uri', classid: 'uri', codebase: 'uri', data: 'uri', usemap: 'uri' }
-  q:          { cite: 'uri' }
-  script:     { src: 'uri' }
-  source:     { srcset: 'uri', src: 'uri' }
-  track:      { src: 'uri' }
-  video:      { poster: 'uri', src: 'uri' }
+  applet      : {archive: 'uri', codebase: 'uri'}
+  audio       : {src: 'uri'}
+  blockquote  : {cite: 'uri'}
+  body        : {background: 'uri'}
+  button      : {formaction: 'uri'}
+  command     : {icon: 'uri'}
+  del         : {cite: 'uri'}
+  embed       : {src: 'uri'}
+  form        : {action: 'uri'}
+  frame       : {longdesc: 'uri', src: 'uri'}
+  head        : {profile: 'uri'}
+  html        : {manifest: 'uri'}
+  iframe      : {longdesc: 'uri', src: 'uri'}
+  img         : {longdesc: 'uri', srcset: 'uri', src: 'uri', usemap: 'uri'}
+  input       : {formaction: 'uri', src: 'uri', usemap: 'uri'}
+  ins         : {cite: 'uri'}
+  meta        : {content: 'uri'}
+  object      : {archive: 'uri', classid: 'uri', codebase: 'uri', data: 'uri', usemap: 'uri'}
+  q           : {cite: 'uri'}
+  script      : {src: 'uri'}
+  source      : {srcset: 'uri', src: 'uri'}
+  track       : {src: 'uri'}
+  video       : {poster: 'uri', src: 'uri'}
 
 nodeInfo = (node) ->
   t = nodeType[node.nodeName] || 'element'
@@ -90,7 +88,7 @@ unparseFragment = (node) ->
   if tag.hasText
     js(node.value)
   else if tag.hasChildren
-    js((unparseFragment(n) for n in (node.childNodes || [])).join('+'))
+    js(unparseFragment(n)) for n in (node.childNodes || [])
 
   if tag.hasCloseTag
     str("</#{node.nodeName}>")

@@ -116,3 +116,17 @@ describe "version #{version}", ->
 
     it "should expand undefined to ''", ->
       assert.equal(evaluate(tpl, {}), ret2)
+
+  describe "with HTML comments", ->
+    tpl = """
+      <!-- This is a comment. -->
+      <script src='https://example.com?x={{uri}}'></script>
+    """
+    # Whitespace below is significant:
+    ret = """
+      
+      <script src='https://example.com?x=#{runtime.uri(env.uri)}'></script>
+    """
+
+    it "should remove the comment and render the rest", ->
+      assert.equal(evaluate(tpl, env), ret)
