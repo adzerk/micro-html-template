@@ -41,7 +41,7 @@ Render the template in the client:
 <script src='dist/micro-html-template-runtime.min.js'></script>
 <script>
   var precompiled = '...'; // precompiled template string from nodejs
-  var htmlContent = MicroHtmlTemplate.render(precompiled, {user: {name: 'Jar Jar B.'}});
+  var htmlContent = microHtmlTemplate.render(precompiled, {user: {name: 'Jar Jar B.'}});
   document.getElementById('template1').innerHTML = htmlContent;
 </script>
 ```
@@ -175,7 +175,7 @@ or in the client:
 
 ```html
 <script>
-  MicroHtmlTemplate.filters.uppercase = function(val) {
+  microHtmlTemplate.filters.uppercase = function(val) {
     return val.toUpperCase();
   };
 </script>
@@ -185,7 +185,7 @@ Filters may accept additional arguments:
 
 ```html
 <script>
-  MicroHtmlTemplate.filters.wrap = function(val, start, end) {
+  microHtmlTemplate.filters.wrap = function(val, start, end) {
     return start + val + end;
   };
 </script>

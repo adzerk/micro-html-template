@@ -48,6 +48,13 @@ describe "version #{version}", ->
     it "should expand undefined to ''", ->
       assert.equal(evaluate(tpl, {}), ret2)
 
+  describe "with boolean attribute", ->
+    tpl  = "<h1 id='{{id}}' data-foo>hi there</h1>"
+    ret1 = "<h1 id='#{runtime.html(env.id)}' data-foo=''>hi there</h1>"
+
+    it "should be expanded and html escaped", ->
+      assert.equal(evaluate(tpl, env), ret1)
+
   describe "with macro in uri type attribute value", ->
     tpl  = "<script src='https://example.com?x={{uri}}'></script>"
     ret1 = "<script src='https://example.com?x=#{runtime.uri(env.uri)}'></script>"

@@ -98,7 +98,7 @@ unparseFragment = (node) ->
 compileMacros = (node) ->
   tag  = nodeInfo(node)
   emit = (src, name) ->
-    if name is 'RAW'
+    if not src or name is 'RAW'
       JSON.stringify(src)
     else
       p = new macro.Parser

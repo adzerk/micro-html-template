@@ -11,7 +11,7 @@ var RPAREN = /\)/g;
 var HTML_CONTROL = /[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/g;
 var HTML_NOT_WHITELISTED = /[^\t\n\v\f\r ,\.0-9A-Z_a-z\-\u00A0-\uFFFF]/g;
 
-var MicroHtmlTemplate = {
+var microHtmlTemplate = {
   filters: {
     id: function(val) {
       return val;
@@ -89,16 +89,16 @@ var MicroHtmlTemplate = {
   },
   render: function(compiledTemplate, env) {
     var fn = new Function('r', 'e', 'return ' + compiledTemplate);
-    return fn(MicroHtmlTemplate.filters, env);
+    return fn(microHtmlTemplate.filters, env);
   }
 }
 
 if (typeof define !== 'undefined' && define.amd) {
-  define([], function () { return MicroHtmlTemplate });
+  define([], function () { return microHtmlTemplate });
 } else if (typeof module !== 'undefined' && module.exports) {
-  module.exports = MicroHtmlTemplate;
+  module.exports = microHtmlTemplate;
 } else {
-  root.MicroHtmlTemplate = MicroHtmlTemplate;
+  root.microHtmlTemplate = microHtmlTemplate;
 }
 
 }(this));
