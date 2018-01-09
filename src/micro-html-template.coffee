@@ -110,7 +110,8 @@ compileMacros = (node) ->
   else if tag.hasOpenTag
     attrs = []
     for {name, value} in node.attrs
-      attrs.push({name, value: emit(value, attrInfo(node, name).escape)})
+      value = emit(value, attrInfo(node, name).escape).replace(/'/g, "&#39;")
+      attrs.push({name, value})
     node.attrs = attrs
 
   if tag.hasChildren

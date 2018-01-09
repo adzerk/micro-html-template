@@ -1,6 +1,6 @@
 {
   "name"             : "micro-html-template",
-  "version"          : "0.1.0",
+  "version"          : "1.0.1",
   "description"      : "HTML template compiler",
   "dependencies"     : {
     "coffee-script"  : "1.7.1",

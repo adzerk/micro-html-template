@@ -48,13 +48,6 @@ describe "version #{version}", ->
     it "should expand undefined to ''", ->
       assert.equal(evaluate(tpl, {}), ret2)
 
-  describe "with boolean attribute", ->
-    tpl  = "<h1 id='{{id}}' data-foo>hi there</h1>"
-    ret1 = "<h1 id='#{runtime.html(env.id)}' data-foo=''>hi there</h1>"
-
-    it "should be expanded and html escaped", ->
-      assert.equal(evaluate(tpl, env), ret1)
-
   describe "with macro in uri type attribute value", ->
     tpl  = "<script src='https://example.com?x={{uri}}'></script>"
     ret1 = "<script src='https://example.com?x=#{runtime.uri(env.uri)}'></script>"
@@ -137,3 +130,17 @@ describe "version #{version}", ->
 
     it "should remove the comment and render the rest", ->
       assert.equal(evaluate(tpl, env), ret)
+
+  describe "with boolean attribute", ->
+    tpl  = "<h1 id='{{id}}' data-foo>hi there</h1>"
+    ret1 = "<h1 id='#{runtime.html(env.id)}' data-foo=''>hi there</h1>"
+
+    it "should be expanded and html escaped", ->
+      assert.equal(evaluate(tpl, env), ret1)
+
+  describe "with attribute value containing single quotes", ->
+    tpl  = "<img onload=\"console.log('foop')\" src=\"#\">"
+    ret1 = "<img onload='console.log(&#39;foop&#39;)' src='#'>"
+
+    it "should be expanded and html escaped", ->
+      assert.equal(evaluate(tpl, env), ret1)
