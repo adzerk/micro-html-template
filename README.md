@@ -54,6 +54,8 @@ The result:
 </div>
 ```
 
+See the [tests][tests] for more examples.
+
 ### Templates
 
 This libarary is designed for applications where templates are created only by
@@ -104,28 +106,38 @@ The values used in macro expansion are provided via the `env` argument to the
 `render` function.
 
 ```jinja
-<!-- String literals and numbers are values. -->
-<div>{{"Urho Kekkonen"}} was {{"President"}} of {{"Finland"}}.</div>
+<!-- JSON string and number literals are values. -->
+<ul>
+  <li>i = {{"√-͞1"}}</li>
+  <li>? = {{42}}</li>
+  <li>π = {{3.14}}</li>
+  <li>ħ = {{6.58e-16}}</li>
+</ul>
 ```
 
 ```jinja
-<!-- Dot operator denotes object property access. -->
-<div>{{user.name}} was {{user.office}} of {{user.geo.country}}.</div>
+<!-- Variable names refer to properties of the `env`. -->
+<div>hello {{name}}</div>
+```
+
+```jinja
+<!-- Use the dot operator to access nested values. -->
+<div>hello {{user.name}}</div>
 ```
 
 ```jinja
 <!-- Square brackets work, too. -->
-<div>{{user["name"]}} was {{user["office"]}} of {{user["geo"]["country"]}}.</div>
+<div>hello {{user["name"]}}</div>
 ```
 
 ```jinja
-<!-- Variables can be used inside the square brackts. -->
-<div>{{user[prop]}} was {{user.office}} of {{user.geo.country}}.</div>
+<!-- Variables can be used inside the square brackets. -->
+<div>hello {{user[prop]}}</div>
 ```
 
 ```jinja
-<!-- Square brackets are used for array access, as usual. -->
-<div>{{user.name}} was {{user.previous[0]}} of {{user.geo.country}}.</div>
+<!-- Square brackets are also used for array access. -->
+<div>hello {{users[0].name}}</div>
 ```
 
 ### Filters
@@ -137,26 +149,49 @@ expressed as a pipeline:
 <img src='https://example.com?q={{query | filter1 | filter2}}'>
 ```
 
+Filters beginning with a `.` character denote method invocation:
+
+```jinja
+<img src='https://example.com?q={{query | .toUpperCase}}'>
+```
+
+Filters and methods may take arguments:
+
+```jinja
+<img src='https://example.com?q={{query | doit("foo", bar.baz) | .substr(42)}}'>
+```
+
 The following built-in filters are included:
 
 * `id` &mdash; The identity filter, does nothing.
 * `uri` &mdash; Escapes input for URI component context.
 * `html` &mdash; Escapes input for HTML context.
+* `raw` &mdash; Applied at the end of the pipeline this filter disables auto-escaping.
 
-Note that these filters are automatically applied as needed to prevent XSS.
-However, it may sometimes make sense to use them in macros, for instance to
-escape URI components in an attribute that is not specified as a URI type:
+Note that the `uri` and `html` filters are automatically applied as needed to
+prevent XSS. However, it may sometimes make sense to use them in macros, for
+instance to escape URI components in an attribute that is not automatically
+interpreted by the browser as a URI type:
 
 ```jinja
-<!-- The 'data-myurl' attribute will be interpreted as a URI by some JavaScript, perhaps. -->
+<!-- The 'data-myurl' attribute normally would not be considered a URI context
+     so URI component escaping must be specified by adding the uri filter. -->
 <div data-myurl='https://example.com?q={{query | uri}}'></div>
 ```
 
-Or if you need to double-escape the URI for some reason:
+Or if you need to double-escape a URI component for some reason:
 
 ```jinja
 <!-- The 'href' attribute is already a URI type, so this will be double-escaped. -->
 <a href='https://example.com?q={{query | uri}}'>Query</a>
+```
+
+Or when using the `raw` filter on trusted data:
+
+```jinja
+<!-- Without "raw" the macro would be URI component escaped, which we don't want.
+     Using the "html" filter preserves the HTML escaping, though, which we do want. -->
+<img src='{{impressionUrl | html | raw}}'>
 ```
 
 ### Custom Filters
@@ -204,12 +239,12 @@ escaped by preceeding it with another start delimiter, like this: `{{{{`.
 
 ```jinja
 <!-- Start delimiter escaped with '{{{{'. -->
-<div>Hello {{{{name}}!</div>
+<div>{{{{user.name}} = '{{user.name}}'</div>
 ```
 
 ```jinja
 <!-- The rendered template. -->
-<div>Hello {{name}}!</div>
+<div>{{user.name}} = 'Jar Jar B.'</div>
 ```
 
 ## Hacking
@@ -236,3 +271,4 @@ Distributed under the [Apache License, Version 2.0][apache].
 
 [apache]: https://www.apache.org/licenses/LICENSE-2.0
 [jinja]: http://jinja.pocoo.org/docs/2.10/
+[tests]: test/micro-html-template.tests.coffee

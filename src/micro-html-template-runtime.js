@@ -87,9 +87,18 @@ var microHtmlTemplate = {
         .replace(TILDE, '%7E');
     }
   },
+  helpers: {
+    m: function(obj, meth) {
+      if (Object.prototype.toString.call(obj[meth]) == '[object Function]') {
+        return obj[meth].apply(obj, Array.prototype.slice.call(arguments, 2));
+      } else {
+        return "";
+      }
+    }
+  },
   render: function(compiledTemplate, env) {
-    var fn = new Function('r', 'e', 'return ' + compiledTemplate);
-    return fn(microHtmlTemplate.filters, env);
+    var fn = new Function('r', 'h', 'e', 'return ' + compiledTemplate);
+    return fn(microHtmlTemplate.filters, microHtmlTemplate.helpers, env);
   }
 }
 

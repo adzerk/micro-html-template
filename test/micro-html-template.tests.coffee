@@ -1,8 +1,11 @@
-assert   = require('chai').assert
-compile  = require('../').compile
-version  = require('../package.json').version
-runtime  = require('secure-filters')
-render   = require('../dist/micro-html-template-runtime.min.js').render
+assert            = require('chai').assert
+compile           = require('../').compile
+version           = require('../package.json').version
+runtime           = require('secure-filters')
+{filters, render} = require('../dist/micro-html-template-runtime.min.js')
+
+filters.upper = (val) -> val.toUpperCase()
+filters.wrap  = (val, prefix, suffix) -> prefix + val + suffix
 
 env =
   id     : ">>id<<"
@@ -143,4 +146,74 @@ describe "version #{version}", ->
     ret1 = "<img onload='console.log(&#39;foop&#39;)' src='#'>"
 
     it "should be expanded and html escaped", ->
+      assert.equal(evaluate(tpl, env), ret1)
+
+  describe "with macro containing string literals and numbers", ->
+    tpl  = '<div>{{"foop\\n"}} {{1956}} {{-1.5}} {{1.2e4}}</div>'
+    ret1 = '<div>foop&#92;n 1956 -1.5 12000</div>'
+
+    it "should be expanded and html escaped", ->
+      assert.equal(evaluate(tpl, env), ret1)
+
+  describe "with macro using custom filter", ->
+    tpl  = '<div>{{"foop" | upper}}</div>'
+    ret1 = '<div>FOOP</div>'
+
+    it "should be expanded and html escaped", ->
+      assert.equal(evaluate(tpl, env), ret1)
+
+  describe "with macro using a method invocation filter without parens", ->
+    tpl  = '<div>{{"foop" | .toUpperCase}}</div>'
+    ret1 = '<div>FOOP</div>'
+
+    it "should be expanded and html escaped", ->
+      assert.equal(evaluate(tpl, env), ret1)
+
+  describe "with macro using a method invocation filter with parens", ->
+    tpl  = '<div>{{"foop" | .toUpperCase()}}</div>'
+    ret1 = '<div>FOOP</div>'
+
+    it "should be expanded and html escaped", ->
+      assert.equal(evaluate(tpl, env), ret1)
+
+  describe "with macro using chained method invocation filters", ->
+    tpl  = '<div>{{"foop" | .toUpperCase() | .substr(2)}}</div>'
+    ret1 = '<div>OP</div>'
+
+    it "should be expanded and html escaped", ->
+      assert.equal(evaluate(tpl, env), ret1)
+
+  describe "with macro using custom filter without initial val", ->
+    tpl  = '<div>{{upper("foop")}}</div>'
+    ret1 = '<div>FOOP</div>'
+
+    it "should be expanded and html escaped", ->
+      assert.equal(evaluate(tpl, env), ret1)
+
+  describe "with macro using composition of custom filters", ->
+    tpl  = '<div>{{"foop" | upper | wrap("[", "]")}}</div>'
+    ret1 = '<div>&#91;FOOP&#93;</div>'
+
+    it "should be expanded and html escaped", ->
+      assert.equal(evaluate(tpl, env), ret1)
+
+  describe "with macro using composition of custom filters without initial val", ->
+    tpl  = '<div>{{upper("foop") | wrap("[", "]")}}</div>'
+    ret1 = '<div>&#91;FOOP&#93;</div>'
+
+    it "should be expanded and html escaped", ->
+      assert.equal(evaluate(tpl, env), ret1)
+
+  describe "with macro using the raw filter", ->
+    tpl  = '<div>{{"[foop]" | raw}}</div>'
+    ret1 = '<div>[foop]</div>'
+
+    it "should be expanded and not escaped", ->
+      assert.equal(evaluate(tpl, env), ret1)
+
+  describe "with macro using the raw filter applied to html filter in a URI type attribute value", ->
+    tpl  = "<img src='{{\"http://example.com?foo=<bar>\" | html | raw}}'>"
+    ret1 = '<img src=\'http&#58;&#47;&#47;example.com&#63;foo&#61;&lt;bar&gt;\'>'
+
+    it "should be expanded and html escaped but not uri escaped", ->
       assert.equal(evaluate(tpl, env), ret1)

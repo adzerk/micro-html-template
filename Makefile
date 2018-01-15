@@ -20,5 +20,5 @@ test: all
 dist/$(NAME)-runtime.min.js: src/$(NAME)-runtime.js
 	mkdir -p dist
 	uglifyjs $< -c -m \
-		--mangle-props reserved=[module,exports,microHtmlTemplate,filters,render,id,html,uri] \
+		--mangle-props reserved=[module,exports,microHtmlTemplate,filters,render,id,html,uri,helpers,m] \
 		> $@
