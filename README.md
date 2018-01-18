@@ -10,8 +10,8 @@ Features:
   to render precompiled templates in the client.
 * **Small precompiled size** &mdash; minimize the size of the JavaScript
   generated for precompiled templates.
-* **Contextual escaping** &mdash; anti-XSS escaping policies are applied
-  automatically based on the HTML context.
+* **Contextual escaping** &mdash; [anti-XSS escaping policies][owasp-xss] are
+  applied automatically based on the HTML context.
 
 Non-Features:
 
@@ -19,6 +19,8 @@ Non-Features:
   in nodejs.
 * **Complex template programming** &mdash; no support for loops, conditionals,
   tags, inheritance, etc.
+* **Protection against malicious templates** &mdash; it is assumed that templates
+  are created by trusted users only.
 
 ## Usage
 
@@ -31,7 +33,8 @@ var precompiled = compile("<img src='https://example.com?myname={{user.name}}'>"
 
 // Render
 var render      = require('micro-html-template-runtime').render;
-var htmlContent = render(precompiled, {user: {name: 'Jar Jar B.'}});
+var env         = {user: {name: 'Jar Jar B.'}};
+var htmlContent = render(precompiled, env);
 ```
 
 Render the template in the client:
@@ -41,7 +44,8 @@ Render the template in the client:
 <script src='dist/micro-html-template-runtime.min.js'></script>
 <script>
   var precompiled = '...'; // precompiled template string from nodejs
-  var htmlContent = microHtmlTemplate.render(precompiled, {user: {name: 'Jar Jar B.'}});
+  var env         = {user: {name: 'Jar Jar B.'}};
+  var htmlContent = microHtmlTemplate.render(precompiled, env);
   document.getElementById('template1').innerHTML = htmlContent;
 </script>
 ```
@@ -60,53 +64,91 @@ See the [tests][tests] for more examples.
 
 This libarary is designed for applications where templates are created only by
 trusted users, but data used to render the templates is untrusted. Template
-data will be automatically escaped to protect against XSS, but this can only
-be done in certain safe HTML contexts:
+data will be automatically protected against XSS by a combination of HTML and
+URI component escaping, depending on the context.
+
+**Templates must be valid HTML** &mdash; macros may only appear in:
+* text nodes
+* quoted attribute values
+
+**Macros in unsafe contexts are ignored** &mdash; macros may not appear in:
+* `<script>` tags
+* `<style>` tags
+* `style` attribute values
+* `on*` event attribute values
+
+Ok:
 
 ```jinja
-<!-- Text nodes are safe contexts, except in 'style' and 'script' tags. -->
+<!-- Text nodes are safe contexts (except in 'style' and 'script' tags). -->
 <div>Hello, {{user.name}}!</div>
 ```
 
 ```jinja
-<!-- Quoted attribute values are safe contexts, except for 'style' and 'on*' attributes. -->
+<!-- Quoted attribute values are safe contexts (except for 'style' and 'on*'). -->
 <img height='{{height}}px'>
 ```
 
-```jinja
-<!-- Additionally, replacements in URI type attributes are automatically URI encoded. -->
-<img src='https://example.com?myname={{user.name}}'>
-```
-
-Comment nodes are removed by the template compiler. Other unsafe contexts are
-passed through verbatim (ie. curly braces and all). However, note that macros
-in unsafe contexts can obscure the HTML structure and can produce unsafe
-templates:
+Unsafe:
 
 ```jinja
-<!-- Macro is in an unsafe context! -->
+<!-- Template is not valid HTML. (Behavior is undefined.) -->
 <{{tag.name}} src='http://example.com'>
 ```
 
-The result:
-
 ```jinja
-<!-- Assuming tag.name = 'img id="image1"'. -->
-<img id&#61;&quot;image1&quot; src='http://example.com'>
+<!-- Macro in script tag (passed through verbatim). -->
+<script>var x = {{foo.x}};</script>
 ```
 
-This is because the HTML parser parses `<{{tag.name}} src='http://example.com'>`
-as a text node (curly braces are not allowed in HTML tag names), which is then
-considered a safe context in which to expand macros. The template creator must
-be trusted not to do such things.
+```jinja
+<!-- Macro in style tag (passed through verbatim). -->
+<style>html {background:{{colors.foo}};}</style>
+```
+
+```jinja
+<!-- Macro in style attribute (passed through verbatim). -->
+<div style='background:{{colors.foo}};'>hello world</div>
+```
+
+```jinja
+<!-- Macro in on* attribute (passed through verbatim). -->
+<div onclick='alert("hello {{user.name}}")'>hello world</div>
+```
+
+### Contextual Escaping
+
+The results of all macro replacements are automatically HTML escaped. However,
+certain attributes are interpreted as URIs by the browser (the `src` attribute
+of an `<iframe>`, for example). Macro replacements in these attributes are URI
+encoded (eg. `encodeURIComponent()`) and then HTML escaped.
+
+```jinja
+<!-- Replacements in text nodes are just HTML escaped. -->
+<div>hello {{user.name}}</div>
+```
+
+```jinja
+<!-- Replacements in regular attributes are just HTML escaped. -->
+<img data-foo='https://example.com?myname={{user.name}}'>
+```
+
+```jinja
+<!-- Replacements in URI type attributes are both URI encoded and HTML escaped. -->
+<img src='https://example.com?myname={{user.name}}'>
+```
+
+### Raw Mode
+
+Automatic contextual escaping can be disabled for individual macros: see [Filters](#filters) below.
 
 ### Values
 
-The values used in macro expansion are provided via the `env` argument to the
-`render` function.
+The values used in macro expansion are provided as literals or via the `env`
+object (passed as an argument to `render`).
 
 ```jinja
-<!-- JSON string and number literals are values. -->
+<!-- JSON string and number literals are values that can be used in macros. -->
 <ul>
   <li>i = {{"√-͞1"}}</li>
   <li>? = {{42}}</li>
@@ -116,7 +158,7 @@ The values used in macro expansion are provided via the `env` argument to the
 ```
 
 ```jinja
-<!-- Variable names refer to properties of the `env`. -->
+<!-- Variable names refer to properties of the env object. -->
 <div>hello {{name}}</div>
 ```
 
@@ -272,3 +314,4 @@ Distributed under the [Apache License, Version 2.0][apache].
 [apache]: https://www.apache.org/licenses/LICENSE-2.0
 [jinja]: http://jinja.pocoo.org/docs/2.10/
 [tests]: test/micro-html-template.tests.coffee
+[owasp-xss]: https://www.owasp.org/index.php/XSS_Filter_Evasion_Cheat_Sheet
