@@ -60,7 +60,7 @@ The result:
 
 See the [tests][tests] for more examples.
 
-### Templates
+## Templates
 
 This libarary is designed for applications where templates are created only by
 trusted users, but data used to render the templates is untrusted. Template
@@ -116,7 +116,7 @@ Unsafe:
 <div onclick='alert("hello {{user.name}}")'>hello world</div>
 ```
 
-### Contextual Escaping
+## Contextual Escaping
 
 The results of all macro replacements are automatically HTML escaped. However,
 certain attributes are interpreted as URIs by the browser (the `src` attribute
@@ -138,11 +138,11 @@ encoded (eg. `encodeURIComponent()`) and then HTML escaped.
 <img src='https://example.com?myname={{user.name}}'>
 ```
 
-### Raw Mode
+## Raw Mode
 
 Automatic contextual escaping can be disabled for individual macros: see [Filters](#filters) below.
 
-### Values
+## Values
 
 The values used in macro expansion are provided as literals or via the `env`
 object (passed as an argument to `render`).
@@ -182,7 +182,7 @@ object (passed as an argument to `render`).
 <div>hello {{users[0].name}}</div>
 ```
 
-### Filters
+## Filters
 
 Filters are functions that are applied to the replacement text. Filters are
 expressed as a pipeline:
@@ -236,7 +236,7 @@ Or when using the `raw` filter on trusted data:
 <img src='{{impressionUrl | html | raw}}'>
 ```
 
-### Custom Filters
+## Custom Filters
 
 Filters can be added to the runtime in nodejs:
 
@@ -274,7 +274,7 @@ Pass the additional arguments to the filter in the template:
 <img src='https://example.com?q={{query | wrap("[", "]")}}'>
 ```
 
-### Escaping Macro Delimiters
+## Escaping Macro Delimiters
 
 To include the macro start delimiter `{{` itself in a template it must be
 escaped by preceeding it with another start delimiter, like this: `{{{{`.
