@@ -6,10 +6,10 @@ security, simplicity, rendering speed, and minimal clientside footprint.
 Features:
 
 * **Small feature set** &mdash; focused on simple value replacement and filters.
-* **Small runtime** &mdash; minimize the amount of JavaScript needed
-  to render precompiled templates in the client.
-* **Small precompiled size** &mdash; minimize the size of the JavaScript
-  generated for precompiled templates.
+* **Small runtime** &mdash; the JavaScript needed to render compiled templates
+  in the client is about 1.1KB, uncompressed.
+* **Small precompiled size** &mdash; compiled templates are approximately the
+  same size as the templates themselves.
 * **Contextual escaping** &mdash; [anti-XSS escaping policies][owasp-xss] are
   applied automatically based on the HTML context.
 
